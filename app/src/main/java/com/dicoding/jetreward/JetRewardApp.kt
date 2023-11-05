@@ -14,6 +14,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -27,6 +28,7 @@ import androidx.navigation.navArgument
 import com.dicoding.jetreward.ui.navigation.NavigationItem
 import com.dicoding.jetreward.ui.navigation.Screen
 import com.dicoding.jetreward.ui.screen.cart.CartScreen
+import com.dicoding.jetreward.ui.screen.cart.shareOrder
 import com.dicoding.jetreward.ui.screen.detail.DetailScreen
 import com.dicoding.jetreward.ui.screen.home.HomeScreen
 import com.dicoding.jetreward.ui.screen.profile.ProfileScreen
@@ -62,7 +64,12 @@ fun JetRewardApp(
                 )
             }
             composable(Screen.Cart.route) {
-                CartScreen()
+                val context = LocalContext.current
+                CartScreen(
+                    onOrderButtonClicked = { message ->
+                        shareOrder(context, message)
+                    }
+                )
             }
             composable(Screen.Profile.route) {
                 ProfileScreen()
@@ -78,6 +85,14 @@ fun JetRewardApp(
                         navController.navigateUp()
                     },
                     navigateToCart = {
+                        navController.popBackStack()
+                        navController.navigate(Screen.Cart.route) {
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
                     }
                 )
             }
